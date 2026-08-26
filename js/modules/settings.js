@@ -79,14 +79,21 @@ export function render(container) {
       }
 
       <div class="card" style="margin-top:var(--sp-3)">
-        <div class="card-label">Sauvegarde manuelle</div>
-        <button class="btn primary block cta" id="export" style="margin-top:var(--sp-3)">
-          Exporter jarvis-data.json
+        <div class="card-label">Sauvegarde &amp; transfert iCloud</div>
+        <p class="card-sub" style="margin-bottom:var(--sp-3)">
+          <strong>Envoyer</strong> crée le fichier de tes données : range-le dans iCloud Drive
+          (sur iPhone : « Enregistrer dans Fichiers » → iCloud Drive).
+          <strong>Récupérer</strong> relit ce fichier pour retrouver tes données sur l'autre appareil.
+        </p>
+        <button class="btn primary block cta" id="export">
+          Envoyer mes données vers iCloud
         </button>
-        <label class="btn block" for="importInput" style="margin-top:var(--sp-2)">Importer un fichier…</label>
+        <label class="btn block" for="importInput" style="margin-top:var(--sp-2)">
+          Récupérer depuis iCloud…
+        </label>
         <input type="file" id="importInput" accept="application/json,.json" hidden>
         <p class="card-sub negative" style="margin-top:var(--sp-2)">
-          L'import remplace l'intégralité des données actuelles.
+          « Récupérer » remplace tout ce qui est actuellement dans l'app.
         </p>
       </div>
 

@@ -70,7 +70,7 @@ export function render(container) {
             <p class="eyebrow">${esc(formatDate(today, { weekday: true, year: true }))}</p>
             <h1>Jarvis</h1>
           </div>
-          <a class="icon-btn" href="#/settings" aria-label="Réglages" title="Réglages">⚙</a>
+          <a class="btn sm" href="#/settings" aria-label="Réglages et sauvegarde">⚙ Réglages</a>
         </div>
       </header>
 

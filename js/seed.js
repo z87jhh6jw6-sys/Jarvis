@@ -3,6 +3,8 @@
 //   - budget-mensuel.xlsx       -> 9 catégories, 28 postes budgétaires, revenus
 //
 // Ce fichier ne contient QUE le référentiel (le "plan"), pas les données saisies.
+// Les MONTANTS ont été volontairement remis à zéro : ils sont saisis dans l'app
+// et vivent uniquement dans ton fichier privé, jamais dans ce dépôt.
 // Les charges soulevées, dépenses et check-ins vivent dans jarvis-data.json.
 // Il sert de valeur par défaut au premier lancement, et de catalogue ensuite.
 
@@ -379,9 +381,9 @@ export const SEED = {
       {
         "id": "pos-01",
         "categoryId": "cat-logement",
-        "name": "Loyer (Herserange)",
+        "name": "Loyer",
         "type": "fixe",
-        "planned": 611.0,
+        "planned": 0,
         "dueDay": 5,
         "note": "Net de charges"
       },
@@ -390,7 +392,7 @@ export const SEED = {
         "categoryId": "cat-logement",
         "name": "Charges locatives",
         "type": "fixe",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": 5,
         "note": ""
       },
@@ -399,7 +401,7 @@ export const SEED = {
         "categoryId": "cat-logement",
         "name": "Électricité (Engie)",
         "type": "fixe",
-        "planned": 57.0,
+        "planned": 0,
         "dueDay": 10,
         "note": "Mensualisation"
       },
@@ -408,7 +410,7 @@ export const SEED = {
         "categoryId": "cat-logement",
         "name": "Eau (Veolia)",
         "type": "fixe",
-        "planned": 20.0,
+        "planned": 0,
         "dueDay": 10,
         "note": "Mensualisation en place"
       },
@@ -417,7 +419,7 @@ export const SEED = {
         "categoryId": "cat-logement",
         "name": "Assurance habitation",
         "type": "fixe",
-        "planned": 9.09,
+        "planned": 0,
         "dueDay": 5,
         "note": ""
       },
@@ -426,7 +428,7 @@ export const SEED = {
         "categoryId": "cat-logement",
         "name": "Internet / box (Bouygues)",
         "type": "fixe",
-        "planned": 54.99,
+        "planned": 0,
         "dueDay": 15,
         "note": ""
       },
@@ -435,25 +437,25 @@ export const SEED = {
         "categoryId": "cat-transport",
         "name": "Carburant",
         "type": "variable",
-        "planned": 60.0,
+        "planned": 0,
         "dueDay": null,
-        "note": "Faire les pleins au Luxembourg"
+        "note": "Optimiser le lieu de plein"
       },
       {
         "id": "pos-08",
         "categoryId": "cat-transport",
         "name": "Abonnement train Longwy–Rodange",
         "type": "fixe",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": 1,
-        "note": "Segment FR seul ; portion LU gratuite"
+        "note": "Vérifier la prise en charge"
       },
       {
         "id": "pos-09",
         "categoryId": "cat-transport",
         "name": "Billets train Paris–Longwy",
         "type": "variable",
-        "planned": 45.0,
+        "planned": 0,
         "dueDay": null,
         "note": "≈ 2 A/R par mois"
       },
@@ -462,7 +464,7 @@ export const SEED = {
         "categoryId": "cat-transport",
         "name": "Assurance auto",
         "type": "fixe",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": 5,
         "note": ""
       },
@@ -471,7 +473,7 @@ export const SEED = {
         "categoryId": "cat-transport",
         "name": "Entretien véhicule",
         "type": "variable",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": null,
         "note": "Lisser sur l'année"
       },
@@ -480,7 +482,7 @@ export const SEED = {
         "categoryId": "cat-transport",
         "name": "Péages",
         "type": "variable",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": null,
         "note": ""
       },
@@ -489,7 +491,7 @@ export const SEED = {
         "categoryId": "cat-alimentation",
         "name": "Courses",
         "type": "variable",
-        "planned": 80.0,
+        "planned": 0,
         "dueDay": null,
         "note": "Budget que tu m'as indiqué"
       },
@@ -498,7 +500,7 @@ export const SEED = {
         "categoryId": "cat-alimentation",
         "name": "Café (boules CoffeeB)",
         "type": "variable",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": null,
         "note": "Achat par lots de 10 boîtes"
       },
@@ -507,7 +509,7 @@ export const SEED = {
         "categoryId": "cat-alimentation",
         "name": "Repas extérieur",
         "type": "variable",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": null,
         "note": ""
       },
@@ -516,16 +518,16 @@ export const SEED = {
         "categoryId": "cat-telecom",
         "name": "Forfait mobile Bouygues",
         "type": "fixe",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": 5,
-        "note": "Vérifier l'itinérance depuis le Luxembourg"
+        "note": "Vérifier l'itinérance"
       },
       {
         "id": "pos-17",
         "categoryId": "cat-telecom",
         "name": "Abonnements numériques",
         "type": "fixe",
-        "planned": 16.0,
+        "planned": 0,
         "dueDay": 1,
         "note": "Streaming, cloud, IA…"
       },
@@ -534,7 +536,7 @@ export const SEED = {
         "categoryId": "cat-sport-sante",
         "name": "Basic-Fit",
         "type": "fixe",
-        "planned": 34.99,
+        "planned": 0,
         "dueDay": 1,
         "note": "Vérifier si frais de carte annuel en plus"
       },
@@ -543,7 +545,7 @@ export const SEED = {
         "categoryId": "cat-sport-sante",
         "name": "Mutuelle",
         "type": "fixe",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": 5,
         "note": ""
       },
@@ -552,7 +554,7 @@ export const SEED = {
         "categoryId": "cat-sport-sante",
         "name": "Santé / pharmacie",
         "type": "variable",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": null,
         "note": ""
       },
@@ -561,7 +563,7 @@ export const SEED = {
         "categoryId": "cat-etudes",
         "name": "Frais KEDGE",
         "type": "fixe",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": 1,
         "note": "Mensualisé si échelonné"
       },
@@ -570,7 +572,7 @@ export const SEED = {
         "categoryId": "cat-etudes",
         "name": "Fournitures / logiciels",
         "type": "variable",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": null,
         "note": ""
       },
@@ -579,7 +581,7 @@ export const SEED = {
         "categoryId": "cat-personnel",
         "name": "Vêtements",
         "type": "variable",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": null,
         "note": ""
       },
@@ -588,7 +590,7 @@ export const SEED = {
         "categoryId": "cat-personnel",
         "name": "Coiffeur",
         "type": "variable",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": null,
         "note": ""
       },
@@ -597,7 +599,7 @@ export const SEED = {
         "categoryId": "cat-personnel",
         "name": "Loisirs / sorties",
         "type": "variable",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": null,
         "note": ""
       },
@@ -606,7 +608,7 @@ export const SEED = {
         "categoryId": "cat-personnel",
         "name": "Cadeaux",
         "type": "variable",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": null,
         "note": ""
       },
@@ -615,7 +617,7 @@ export const SEED = {
         "categoryId": "cat-epargne",
         "name": "Épargne de précaution",
         "type": "fixe",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": 1,
         "note": "À traiter comme une charge, pas un reste"
       },
@@ -624,7 +626,7 @@ export const SEED = {
         "categoryId": "cat-imprevus",
         "name": "Marge de sécurité",
         "type": "variable",
-        "planned": 0.0,
+        "planned": 0,
         "dueDay": null,
         "note": "5 à 10 % des revenus"
       }
@@ -633,22 +635,22 @@ export const SEED = {
       {
         "id": "rev-1",
         "name": "Gratification de stage (net)",
-        "amount": 1000.0
+        "amount": 0
       },
       {
         "id": "rev-2",
         "name": "APL / CAF",
-        "amount": 0.0
+        "amount": 0
       },
       {
         "id": "rev-3",
         "name": "Aide familiale",
-        "amount": 0.0
+        "amount": 0
       },
       {
         "id": "rev-4",
         "name": "Autres revenus",
-        "amount": 0.0
+        "amount": 0
       }
     ]
   }

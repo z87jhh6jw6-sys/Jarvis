@@ -4,7 +4,7 @@
 //
 // Incrémente CACHE_NAME à chaque modification d'un fichier listé ci-dessous,
 // sinon un appareil déjà installé continuera de servir l'ancienne version.
-const CACHE_NAME = "jarvis-v9";
+const CACHE_NAME = "jarvis-v10";
 
 const SHELL = [
   "./",

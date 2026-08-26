@@ -403,9 +403,9 @@
       {
         "id": "pos-01",
         "categoryId": "cat-logement",
-        "name": "Loyer (Herserange)",
+        "name": "Loyer",
         "type": "fixe",
-        "planned": 611,
+        "planned": 0,
         "dueDay": 5,
         "note": "Net de charges"
       },
@@ -423,7 +423,7 @@
         "categoryId": "cat-logement",
         "name": "Électricité (Engie)",
         "type": "fixe",
-        "planned": 57,
+        "planned": 0,
         "dueDay": 10,
         "note": "Mensualisation"
       },
@@ -432,7 +432,7 @@
         "categoryId": "cat-logement",
         "name": "Eau (Veolia)",
         "type": "fixe",
-        "planned": 20,
+        "planned": 0,
         "dueDay": 10,
         "note": "Mensualisation en place"
       },
@@ -441,7 +441,7 @@
         "categoryId": "cat-logement",
         "name": "Assurance habitation",
         "type": "fixe",
-        "planned": 9.09,
+        "planned": 0,
         "dueDay": 5,
         "note": ""
       },
@@ -450,7 +450,7 @@
         "categoryId": "cat-logement",
         "name": "Internet / box (Bouygues)",
         "type": "fixe",
-        "planned": 54.99,
+        "planned": 0,
         "dueDay": 15,
         "note": ""
       },
@@ -459,7 +459,7 @@
         "categoryId": "cat-transport",
         "name": "Carburant",
         "type": "variable",
-        "planned": 60,
+        "planned": 0,
         "dueDay": null,
         "note": "Faire les pleins au Luxembourg"
       },
@@ -477,7 +477,7 @@
         "categoryId": "cat-transport",
         "name": "Billets train Paris–Longwy",
         "type": "variable",
-        "planned": 45,
+        "planned": 0,
         "dueDay": null,
         "note": "≈ 2 A/R par mois"
       },
@@ -513,7 +513,7 @@
         "categoryId": "cat-alimentation",
         "name": "Courses",
         "type": "variable",
-        "planned": 80,
+        "planned": 0,
         "dueDay": null,
         "note": "Budget que tu m'as indiqué"
       },
@@ -549,7 +549,7 @@
         "categoryId": "cat-telecom",
         "name": "Abonnements numériques",
         "type": "fixe",
-        "planned": 16,
+        "planned": 0,
         "dueDay": 1,
         "note": "Streaming, cloud, IA…"
       },
@@ -558,7 +558,7 @@
         "categoryId": "cat-sport-sante",
         "name": "Basic-Fit",
         "type": "fixe",
-        "planned": 34.99,
+        "planned": 0,
         "dueDay": 1,
         "note": "Vérifier si frais de carte annuel en plus"
       },
@@ -657,7 +657,7 @@
       {
         "id": "rev-1",
         "name": "Gratification de stage (net)",
-        "amount": 1000
+        "amount": 0
       },
       {
         "id": "rev-2",
