@@ -29,7 +29,7 @@ Tout part d'UNE variable : `--c-brand`, posée sur `<body data-theme="…">` par
 - **Carte** — `.card` (ou `.row` pour les lignes de liste, `.form-card`, `.exercise`) : fond blanc teinté à 7 % par la page, ombre douce (pas de bordure), **liseré 3 px couleur de page sur le bord gauche**. Ces quatre classes portent le même traitement ; toute nouvelle famille de carte doit le reprendre.
 - **Bloc plein couleur** — `.hero` (accueil), `.due-day` (pastille jour de prélèvement), `.badge.pos` : fond `--c-brand` plein, texte `--c-brand-contrast` (blanc). C'est la signature « thème affirmé » ; ne pas en abuser ailleurs.
 - **Sparkline** — fonction locale dans `js/modules/sport.js` (onglet Progression), stylée `.spark`. Histogramme 6 mois : `.mbars` dans `js/modules/finance.js`.
-- **Minuteur de repos** — `js/components/timer.js`, global (survit aux changements d'onglet), déclenché par `startRest(secondes, label)` au clic sur une série. Wake lock + bip + vibration ; recalcul du restant sur horloge (iOS gèle les intervals écran verrouillé).
+- **Minuteur de repos** — `js/components/timer.js`, global (survit aux changements d'onglet), déclenché par `startRest(secondes, label)` au clic sur une série. Wake lock + vibration, sans aucun son (usage en salle) ; recalcul du restant sur horloge (iOS gèle les intervals écran verrouillé).
 - **Toast** — `window.dispatchEvent(new CustomEvent("jarvis:toast", { detail: { msg, isError } }))` depuis n'importe où.
 
 ## 3. Je veux modifier X → je touche à Y

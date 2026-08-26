@@ -34,7 +34,8 @@ Jarvis/
     idb.js                  wrapper IndexedDB
     utils.js                helpers + validation d'entrées
     components/timer.js     minuteur de repos
-    modules/                dashboard, sport, finance, habits, settings
+    components/ring.js      anneaux de progression
+    modules/                dashboard, sport, finance, habits, tasks, settings
   data/
     jarvis-data.example.json  exemple du format
   icons/
@@ -48,10 +49,6 @@ Chaque onglet est un vrai thème affirmé, posé par le routeur via `data-theme`
 
 Le rouge critique (`#c62828`) reste réservé aux retards/dépassements (le hero passe en rouge plein si une tâche est en retard) ; le corail des Tâches, plus orangé, en reste distinct. Tout est dans **`css/tokens.css`**.
 
-Cas particulier voulu : sur le tableau de bord, les trois anneaux portent chacun la couleur de **leur** module (ambre / émeraude / violet), pas le bleu de l'accueil — via `opts.color` du composant `ring.js`.
-
-Le rouge critique (`#c62828`) reste strictement réservé aux retards, dépassements et suppressions ; le corail des Tâches en est volontairement éloigné. Tout est dans **`css/tokens.css`** ; `styles.css` ne fait que consommer ces variables.
-
 Les polices sont **système uniquement** (`-apple-system` / `ui-monospace`) : aucun chargement réseau, rendu natif iOS et macOS, mode hors-ligne intact.
 
 ## Ce qui a été repris de tes fichiers existants
@@ -60,8 +57,8 @@ Les polices sont **système uniquement** (`-apple-system` / `ui-monospace`) : au
 
 - Programme *Bloc 1 — Priorité masse*, 12 semaines, 3 séances/semaine.
 - Les 3 jours avec leurs 22 exercices, schémas de séries, notes techniques et temps de repos (les repos étaient écrits en toutes lettres dans les titres de blocs — « repos 3 min », « repos 90 s » — ils ont été convertis en secondes).
-- Poids de corps : départ 60 kg, cible 64 kg.
-- Le minuteur de repos avec écran maintenu allumé, bip de fin et vibration.
+- Poids de corps : départ 60 kg, cible 64 kg (seule valeur personnelle encore présente dans le code, faute d'écran pour la régler — dis-le si tu veux la retirer).
+- Le minuteur de repos avec écran maintenu allumé et vibration de fin (silencieux, pensé pour la salle).
 
 Deux différences avec l'original, volontaires :
 
@@ -72,9 +69,9 @@ L'onglet *Cuisine* (liste de courses 76 €/mois, journée type, remarques sur l
 
 **`budget-mensuel.xlsx`** → `js/seed.js`
 
-- 9 catégories, 28 postes budgétaires avec leurs montants prévus, type fixe/variable, jour de prélèvement et notes.
-- Les revenus (gratification de stage 1 000 €, APL, aide familiale, autres).
-- Total prévu **988,07 €** pour 1 000 € de revenus, soit 11,93 € de reste à vivre — c'est ce que dit ton tableur, pas une erreur de reprise.
+- 9 catégories, 28 postes budgétaires avec leur type fixe/variable, jour de prélèvement et notes.
+- Les 4 lignes de revenus.
+- **Les montants ne sont volontairement pas embarqués** : postes et revenus sont livrés à zéro, pour qu'aucun chiffre personnel ne se retrouve dans un dépôt public. Ils se saisissent une fois dans l'app (onglets Prévisionnel et Revenus) et vivent ensuite uniquement dans ton fichier de données.
 
 Le Journal du tableur ne contenait qu'une ligne d'exemple, donc aucune dépense réelle n'a été migrée. Les formules `SUMIFS` du tableau de bord sont remplacées par du calcul en JavaScript : sélection du mois, prévu/réel/écart par catégorie, taux d'épargne.
 
@@ -82,7 +79,7 @@ Le Journal du tableur ne contenait qu'une ligne d'exemple, donc aucune dépense 
 
 ## Fonctionnalités "assistant"
 
-- **Accueil = plan d'action du jour.** Un bloc « Priorité du moment » choisit la première chose à faire (tâche en retard > séance prévue > tâche du jour > habitude restante), suivi de la liste du jour : séance prévue selon le jour de la semaine (mardi/jeudi/vendredi), habitudes restantes, tâches dues, prélèvement imminent (≤ 3 jours). Réglages accessibles via l'engrenage.
+- **Accueil = plan d'action du jour.** Un bloc « Priorité du moment » choisit la première chose à faire (tâche en retard > séance prévue > tâche du jour > habitude restante), suivi de la liste du jour : séance prévue selon le jour de la semaine (mardi/jeudi/vendredi), habitudes restantes, tâches dues, prélèvement imminent (≤ 3 jours). Réglages accessibles par le bouton « ⚙ Réglages » en haut de l'accueil.
 - **Tâches** : nouvel onglet — échéances, priorités, détection des retards, sections En retard / Aujourd'hui / À venir, nettoyage des terminées.
 - **Sport** : compteur « semaine X/12 » (démarré à la première séance enregistrée), onglet Progression avec courbe par exercice (SVG maison, zéro dépendance), badge PR sur les records, delta depuis la première charge.
 - **Budget** : « Prochains prélèvements » calculés depuis les jours de prélèvement de tes postes fixes, histogramme des dépenses sur 6 mois.
@@ -94,31 +91,46 @@ Tout vit dans **un seul document JSON** (`jarvis-data.json`) — voir `data/jarv
 
 **Chrome / Edge sur Mac** — File System Access API. Dans Réglages, tu désignes un vrai fichier, typiquement dans un dossier iCloud Drive. Chaque modification s'y écrit directement ; macOS gère la synchronisation. Rien dans le code n'est spécifique à iCloud : c'est un dossier comme un autre, le chemin est choisi au moment du clic.
 
-**Safari (Mac et iPhone)** — Safari ne permet pas à une app web d'écrire dans un fichier du disque, **même installée sur l'écran d'accueil**. C'est une limite d'Apple. Les données restent dans l'app (IndexedDB) et la synchro passe par les boutons **Exporter** / **Importer** des Réglages.
+**Safari (Mac et iPhone)** — Safari ne permet pas à une app web d'écrire dans un fichier du disque, **même installée sur l'écran d'accueil**. C'est une limite d'Apple. Les données restent dans l'app (IndexedDB) et la synchro passe par les boutons **Envoyer mes données vers iCloud** / **Récupérer depuis iCloud** des Réglages.
 
-En pratique, avec un usage quotidien sur iPhone : IndexedDB comme stockage principal, export vers iCloud Drive de temps en temps, et le Mac sous Chrome si tu veux l'écriture directe dans le fichier. C'est le compromis maximal qu'une PWA permet aujourd'hui sur iOS ; une vraie synchro transparente demanderait une app native ou un petit serveur, ce que tu as explicitement exclu.
+En pratique, avec un usage quotidien sur iPhone : stockage interne comme base, « Envoyer vers iCloud » de temps en temps, et le Mac sous Chrome si tu veux l'écriture directe dans le fichier. C'est le compromis maximal qu'une PWA permet aujourd'hui sur iOS ; une vraie synchro transparente demanderait une app native ou un petit serveur, ce que tu as explicitement exclu.
 
 Le fichier n'est jamais écrasé en silence : si le JSON lu est illisible, l'app affiche une erreur au lieu d'écrire par-dessus.
 
 ## Héberger gratuitement (GitHub Pages)
 
-Pour installer l'app sur iPhone sans dépendre du Mac allumé, le **code** doit être servi en https. Tout est prêt : le workflow `.github/workflows/deploy.yml` publie le dossier tel quel sur GitHub Pages à chaque push. Étapes côté utilisateur (une seule fois) :
+Pour installer l'app sur iPhone sans dépendre du Mac allumé, le **code** doit être servi en https. Tout est prêt : le workflow `.github/workflows/deploy.yml` publie le dossier tel quel sur GitHub Pages à chaque envoi.
+
+### Méthode simple (recommandée) — GitHub Desktop
+
+1. Créer un compte sur [github.com](https://github.com) (gratuit).
+2. Installer [GitHub Desktop](https://desktop.github.com) et s'y connecter.
+3. Menu **File → Add Local Repository**, choisir le dossier `Jarvis` — il est déjà reconnu comme dépôt, rien à préparer.
+4. Cliquer **Publish repository**. Laisser le nom `Jarvis`, décocher « Keep this code private » (Pages gratuit exige un dépôt public — le code ne contient aucune donnée personnelle, voir plus bas).
+5. Sur github.com, ouvrir le dépôt → **Settings → Pages → Source : "GitHub Actions"**.
+
+Après une ou deux minutes (onglet **Actions**), l'app est en ligne sur `https://<TON_USER>.github.io/Jarvis/`.
+
+Pour publier une modification plus tard : rouvrir GitHub Desktop, écrire une phrase dans « Summary », **Commit to main**, puis **Push origin**. Le site se met à jour tout seul.
+
+### Méthode ligne de commande (si tu préfères)
 
 ```bash
 cd ~/Jarvis
-# le dépôt git est déjà initialisé avec un historique propre
-# 1. Crée un dépôt "jarvis" sur https://github.com/new (vide, sans README)
-# 2. Puis :
-git remote add origin https://github.com/<TON_USER>/jarvis.git
+git remote add origin https://github.com/<TON_USER>/Jarvis.git
 git push -u origin main
 ```
 
-Ensuite sur GitHub : **Settings → Pages → Source : "GitHub Actions"**. Le déploiement se lance tout seul (onglet Actions) et l'app est disponible sous `https://<TON_USER>.github.io/jarvis/` — c'est cette URL qu'on ouvre dans Safari sur l'iPhone pour « Ajouter à l'écran d'accueil ». Tous les chemins de l'app sont relatifs (`./`), vérifiés en simulation sous sous-chemin : manifest, service worker et icônes fonctionnent tels quels sous `/jarvis/`.
+Puis **Settings → Pages → Source : "GitHub Actions"**. Note : `git push` en https demande un jeton d'accès personnel, pas le mot de passe du compte — d'où la recommandation de GitHub Desktop.
 
-**Vie privée — lis ceci avant de pousser.** Seul le CODE part sur GitHub. Tes données saisies (séances, dépenses, habitudes, tâches) restent à 100 % locales : fichier `jarvis-data.json` (iCloud Drive) ou IndexedDB — `jarvis-data.json` est d'ailleurs dans `.gitignore` par sécurité. **MAIS** : `js/seed.js` contient ton référentiel budgétaire réel (loyer 611 €, revenus, postes) et ton programme sport, embarqués comme valeurs par défaut. Sur un dépôt **public** (requis pour Pages en compte GitHub gratuit), n'importe qui peut les lire. Deux options :
+Tous les chemins de l'app sont relatifs (`./`), vérifiés en simulation sous sous-chemin : manifest, service worker et icônes fonctionnent tels quels sous `/Jarvis/`.
 
-1. Assumer — ce sont des montants prévisionnels, pas des relevés de compte ; ou
-2. Dépôt **privé** + hébergeur statique gratuit qui accepte les dépôts privés : Cloudflare Pages ou Netlify (connecter le repo, framework « None », dossier de sortie `/`). Même résultat, données du seed non exposées.
+**Vie privée.** Seul le CODE part sur GitHub. Les données saisies (séances, dépenses,
+habitudes, tâches) restent à 100 % sur l'appareil : fichier `jarvis-data.json` rangé dans
+iCloud Drive, ou stockage interne du navigateur. Ce fichier est exclu du dépôt par
+`.gitignore`. Le référentiel livré (`js/seed.js`) ne contient aucun montant : postes
+budgétaires et revenus sont à zéro, à saisir dans l'app. Un dépôt public n'expose donc
+que le programme d'entraînement et des noms de catégories.
 
 ## Installer sur iPhone
 

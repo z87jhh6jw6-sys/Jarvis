@@ -1,7 +1,7 @@
 // Minuteur de repos global — repris du carnet de charges existant.
-// Écran maintenu allumé pendant le décompte, bip + vibration à la fin.
-// Toutes les API utilisées sont optionnelles et échouent silencieusement
-// si le navigateur ne les fournit pas (Safari iOS n'a pas navigator.vibrate).
+// Écran maintenu allumé pendant le décompte. Fin de repos SILENCIEUSE :
+// vibration + bascule visuelle franche, aucun son (usage en salle).
+// Les API utilisées sont optionnelles et échouent sans casser le minuteur.
 
 import { formatDuration } from "../utils.js";
 
@@ -11,7 +11,6 @@ let total = 0;
 let intervalId = null;
 let running = false;
 let wakeLock = null;
-let audioCtx = null;
 // Base temps absolue : un setInterval est mis en pause par iOS quand l'écran
 // se verrouille, donc on recalcule le restant depuis l'horloge à chaque tick.
 let endAt = 0;
@@ -67,8 +66,6 @@ export function startRest(restSeconds, label, prefix = "Repos") {
   total = restSeconds;
   labelEl.textContent = `${prefix} · ${label}`;
   el.dataset.open = "true";
-  // Débloque l'audio dans le même geste utilisateur que le clic sur la série.
-  primeAudio();
   start();
 }
 
@@ -117,7 +114,6 @@ function tick() {
   seconds = remaining;
   if (remaining === 0 && wasPositive) {
     stop();
-    chime();
     buzz();
   }
   paint();
@@ -126,13 +122,19 @@ function tick() {
 function paint() {
   if (!el) return;
   const s = Math.max(0, seconds);
-  clockEl.textContent = formatDuration(s);
+  const done = Boolean(total) && s === 0;
+  // Sans son, l'affichage est le seul repère si la vibration passe inaperçue :
+  // le compteur cède la place à un message explicite.
+  clockEl.textContent = done ? "GO" : formatDuration(s);
   barEl.style.width = total ? (s / total) * 100 + "%" : "0%";
   playEl.textContent = running ? "❚❚" : "▶";
-  el.dataset.state = total && s === 0 ? "done" : s > 0 && s <= 5 ? "warn" : running ? "run" : "idle";
+  el.dataset.state = done ? "done" : s > 0 && s <= 5 ? "warn" : running ? "run" : "idle";
+  if (done) labelEl.textContent = "Repos terminé";
 }
 
-// --- Écran, son, vibration -------------------------------------------------
+// --- Écran et vibration ----------------------------------------------------
+// Fin de repos SILENCIEUSE, par choix : vibration + signal visuel franc,
+// aucun son. L'app s'utilise dans une salle fréquentée.
 
 function requestWakeLock() {
   try {
@@ -161,42 +163,11 @@ function releaseWakeLock() {
   wakeLock = null;
 }
 
-function primeAudio() {
-  try {
-    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === "suspended") audioCtx.resume();
-  } catch (err) {
-    /* pas d'audio disponible */
-  }
-}
-
-function chime() {
-  try {
-    primeAudio();
-    if (!audioCtx) return;
-    [0, 0.28, 0.56].forEach((delay, i) => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = "sine";
-      osc.frequency.value = i === 2 ? 1180 : 880;
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      const t = audioCtx.currentTime + delay;
-      gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.3, t + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
-      osc.start(t);
-      osc.stop(t + 0.22);
-    });
-  } catch (err) {
-    /* ignore */
-  }
-}
-
 function buzz() {
   try {
-    navigator.vibrate?.([180, 90, 180, 90, 260]);
+    // Motif long/court/long : reconnaissable dans la poche, sans son.
+    navigator.vibrate?.([400, 120, 200, 120, 400]);
   } catch (err) {
-    /* ignore */
+    /* non supporté : le signal visuel prend le relais */
   }
 }

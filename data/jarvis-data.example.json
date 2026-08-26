@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-26T10:46:39.611Z",
+  "updatedAt": "2026-08-26T16:41:17.913Z",
   "sport": {
     "program": {
       "id": "bloc-1",
@@ -461,7 +461,7 @@
         "type": "variable",
         "planned": 0,
         "dueDay": null,
-        "note": "Faire les pleins au Luxembourg"
+        "note": "Optimiser le lieu de plein"
       },
       {
         "id": "pos-08",
@@ -470,7 +470,7 @@
         "type": "fixe",
         "planned": 0,
         "dueDay": 1,
-        "note": "Segment FR seul ; portion LU gratuite"
+        "note": "Vérifier la prise en charge"
       },
       {
         "id": "pos-09",
@@ -542,7 +542,7 @@
         "type": "fixe",
         "planned": 0,
         "dueDay": 5,
-        "note": "Vérifier l'itinérance depuis le Luxembourg"
+        "note": "Vérifier l'itinérance"
       },
       {
         "id": "pos-17",
@@ -693,7 +693,7 @@
       {
         "id": "h1",
         "name": "Lecture",
-        "createdAt": "2026-08-26T10:46:39.611Z",
+        "createdAt": "2026-08-26T16:41:17.913Z",
         "archived": false,
         "targetPerWeek": 3
       }
@@ -715,7 +715,7 @@
       "priority": "haute",
       "done": false,
       "doneAt": null,
-      "createdAt": "2026-08-26T10:46:39.611Z",
+      "createdAt": "2026-08-26T16:41:17.913Z",
       "note": ""
     }
   ]

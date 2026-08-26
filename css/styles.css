@@ -705,7 +705,18 @@ h3 { font-weight: var(--fw-medium); }
 
 .timer[data-open="true"] { transform: translate(-50%, 0); }
 .timer[data-state="warn"] { border-color: var(--c-warn); }
-.timer[data-state="done"] { border-color: var(--c-border-strong); }
+
+/* Fin de repos : pas de son, donc le bandeau se retourne franchement
+   en plein pour être vu du coin de l'œil. */
+.timer[data-state="done"] {
+  background: var(--c-brand);
+  border-color: var(--c-brand);
+}
+.timer[data-state="done"] .timer-clock,
+.timer[data-state="done"] .timer-label { color: var(--c-brand-contrast); }
+.timer[data-state="done"] .bar { background: color-mix(in srgb, var(--c-brand-contrast) 30%, transparent); }
+.timer[data-state="done"] .btn { border-color: color-mix(in srgb, var(--c-brand-contrast) 45%, transparent); color: var(--c-brand-contrast); }
+.timer[data-state="done"] .btn.primary { background: var(--c-brand-contrast); color: var(--c-brand); border-color: var(--c-brand-contrast); }
 
 .timer-top {
   display: flex;
