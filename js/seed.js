@@ -1,0 +1,655 @@
+// Contenu réel importé des fichiers existants de Minh :
+//   - jarvis-module-sport.html  -> programme Bloc 1 (12 semaines, 3 séances/sem, 22 exercices)
+//   - budget-mensuel.xlsx       -> 9 catégories, 28 postes budgétaires, revenus
+//
+// Ce fichier ne contient QUE le référentiel (le "plan"), pas les données saisies.
+// Les charges soulevées, dépenses et check-ins vivent dans jarvis-data.json.
+// Il sert de valeur par défaut au premier lancement, et de catalogue ensuite.
+
+export const SEED = {
+  "program": {
+    "id": "bloc-1",
+    "name": "Bloc 1 — Priorité masse",
+    "weeks": 12,
+    "sessionsPerWeek": 3,
+    "bodyweight": {
+      "start": 60.0,
+      "target": 64.0,
+      "unit": "kg"
+    },
+    "days": [
+      {
+        "id": "d1",
+        "weekday": "Mardi",
+        "title": "Force",
+        "intro": "Le jour qui décide de tout. Charges lourdes, repos longs, peu d'exercices. Objectif unique : ajouter 2,5 kg à la barre chaque semaine tant que la technique tient.",
+        "blocks": [
+          {
+            "name": "Bloc lourd — repos 3 min",
+            "exercises": [
+              {
+                "id": "d1a1",
+                "code": "A1",
+                "name": "Squat barre",
+                "scheme": "4 × 5",
+                "note": "Descends jusqu'à la cuisse parallèle. Si tu n'y arrives pas, baisse la charge — pas la profondeur.",
+                "kind": "f",
+                "sets": 4,
+                "restSeconds": 180,
+                "timed": false
+              },
+              {
+                "id": "d1a2",
+                "code": "A2",
+                "name": "Développé couché haltères",
+                "scheme": "4 × 6",
+                "note": "Haltères plutôt que barre : plus d'amplitude, moins de risque d'épaule quand tu es seul.",
+                "kind": "f",
+                "sets": 4,
+                "restSeconds": 180,
+                "timed": false
+              },
+              {
+                "id": "d1b1",
+                "code": "B1",
+                "name": "Rowing barre buste penché",
+                "scheme": "4 × 6",
+                "note": "Buste à 45°, barre au nombril. Ton dos est ton plus gros retard : il passe avant les bras.",
+                "kind": "f",
+                "sets": 4,
+                "restSeconds": 180,
+                "timed": false
+              },
+              {
+                "id": "d1b2",
+                "code": "B2",
+                "name": "Développé épaules assis haltères (dossier 80°)",
+                "scheme": "3 × 8",
+                "note": "Dossier presque vertical, dos plaqué : la cambrure lombaire devient impossible. Alternative si le banc est pris : landmine press à genoux. Reprends léger et ne remonte que si les 3 séries sortent sans douleur ni compensation.",
+                "kind": "f",
+                "sets": 3,
+                "restSeconds": 180,
+                "timed": false
+              }
+            ]
+          },
+          {
+            "name": "Bloc complémentaire — repos 90 s",
+            "exercises": [
+              {
+                "id": "d1c1",
+                "code": "C",
+                "name": "Traction prise large (lestée ou élastique)",
+                "scheme": "3 × max",
+                "note": "Quand tu passes 3 × 8 au poids de corps, tu lestes.",
+                "kind": "v",
+                "sets": 3,
+                "restSeconds": 90,
+                "timed": false
+              },
+              {
+                "id": "d1c2",
+                "code": "D",
+                "name": "Curl incliné haltères",
+                "scheme": "3 × 10",
+                "note": "Le seul curl de la journée. Banc à 45°, bras derrière le corps = étirement maximal du biceps.",
+                "kind": "v",
+                "sets": 3,
+                "restSeconds": 90,
+                "timed": false
+              },
+              {
+                "id": "d1c3",
+                "code": "E",
+                "name": "Hollow hold",
+                "scheme": "3 × 30 s",
+                "note": "Lombaires collées au sol. Si elles décollent, plie les genoux.",
+                "kind": "h",
+                "sets": 3,
+                "restSeconds": 90,
+                "timed": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "d2",
+        "weekday": "Jeudi",
+        "title": "Volume",
+        "intro": "Machines et poulies : tension constante, moins de fatigue nerveuse, plus de séries utiles.",
+        "blocks": [
+          {
+            "name": "Jambes — repos 2 min",
+            "exercises": [
+              {
+                "id": "d2a1",
+                "code": "A",
+                "name": "Presse à cuisses",
+                "scheme": "4 × 10",
+                "note": "Pieds bas et serrés pour charger les quadriceps.",
+                "kind": "v",
+                "sets": 4,
+                "restSeconds": 120,
+                "timed": false
+              },
+              {
+                "id": "d2a2",
+                "code": "B",
+                "name": "Leg curl allongé",
+                "scheme": "3 × 12",
+                "note": "Ischios : le muscle qui te manque le plus pour courir sans te blesser.",
+                "kind": "v",
+                "sets": 3,
+                "restSeconds": 120,
+                "timed": false
+              }
+            ]
+          },
+          {
+            "name": "Pecs — méthode pré-fatigue, repos 2 min",
+            "exercises": [
+              {
+                "id": "d2b1",
+                "code": "C1",
+                "name": "Écarté à la poulie (pré-fatigue)",
+                "scheme": "2 × 15",
+                "note": "Léger. Le but est de « réveiller » le pec avant le développé, pas de le détruire.",
+                "kind": "v",
+                "sets": 2,
+                "restSeconds": 45,
+                "timed": false
+              },
+              {
+                "id": "d2b2",
+                "code": "C2",
+                "name": "Développé incliné haltères",
+                "scheme": "4 × 12",
+                "note": "Banc à 30°. Descends jusqu'à l'étirement complet, marque un temps d'arrêt en bas.",
+                "kind": "v",
+                "sets": 4,
+                "restSeconds": 120,
+                "timed": false
+              }
+            ]
+          },
+          {
+            "name": "Dos et épaules — repos 75 s",
+            "exercises": [
+              {
+                "id": "d2c1",
+                "code": "D",
+                "name": "Tirage vertical prise large",
+                "scheme": "4 × 10",
+                "note": "",
+                "kind": "v",
+                "sets": 4,
+                "restSeconds": 75,
+                "timed": false
+              },
+              {
+                "id": "d2c2",
+                "code": "E",
+                "name": "Élévation latérale poulie, bras dans le dos",
+                "scheme": "4 × 15",
+                "note": "Poulie basse derrière le dos. C'est la variante classée « great » dans ta vidéo : tension présente dès le premier degré du mouvement, contrairement aux haltères.",
+                "kind": "v",
+                "sets": 4,
+                "restSeconds": 75,
+                "timed": false
+              },
+              {
+                "id": "d2c3",
+                "code": "F",
+                "name": "Rear delt fly à la poulie",
+                "scheme": "3 × 15",
+                "note": "Poulies croisées. Deltoïde postérieur = ce qui donne l'épaule ronde de profil.",
+                "kind": "v",
+                "sets": 3,
+                "restSeconds": 75,
+                "timed": false
+              },
+              {
+                "id": "d2c4",
+                "code": "G",
+                "name": "Extension triceps poulie corde",
+                "scheme": "3 × 12",
+                "note": "Écarte la corde en bas de mouvement.",
+                "kind": "v",
+                "sets": 3,
+                "restSeconds": 75,
+                "timed": false
+              }
+            ]
+          },
+          {
+            "name": "Abdos — circuit lesté, 2 tours sans repos",
+            "exercises": [
+              {
+                "id": "d2d1",
+                "code": "H",
+                "name": "Around the world 20 · In & out 20 · Levées de jambes 12 · Knee-tuck 10 · V-up 10 · Hollow 30 s",
+                "scheme": "2 tours",
+                "note": "Un disque de 5 kg ou une bouteille de 1,5 L dans les mains. Le circuit de ta vidéo abdos, gardé tel quel.",
+                "kind": "h",
+                "sets": 2,
+                "restSeconds": 60,
+                "timed": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "d3",
+        "weekday": "Vendredi",
+        "title": "Hybride",
+        "intro": "Chaîne postérieure lourde, complexe kettlebell, haut du corps, finisher cardio.",
+        "blocks": [
+          {
+            "name": "Chaîne postérieure — repos 3 min",
+            "exercises": [
+              {
+                "id": "d3a1",
+                "code": "A",
+                "name": "Soulevé de terre barre",
+                "scheme": "3 × 5",
+                "note": "Reposé au sol entre chaque rep. Trois séries suffisent : c'est l'exercice le plus coûteux à récupérer.",
+                "kind": "f",
+                "sets": 3,
+                "restSeconds": 180,
+                "timed": false
+              },
+              {
+                "id": "d3a2",
+                "code": "B",
+                "name": "Fentes marchées haltères",
+                "scheme": "3 × 12 / jambe",
+                "note": "Ton programme actuel n'a aucun mouvement debout sur les jambes. Celui-ci corrige ça à lui seul.",
+                "kind": "f",
+                "sets": 3,
+                "restSeconds": 180,
+                "timed": false
+              }
+            ]
+          },
+          {
+            "name": "Complexe kettlebell — 5 tours, 90 s de repos",
+            "exercises": [
+              {
+                "id": "d3b1",
+                "code": "C",
+                "name": "6 swings · 4 clean & press / bras · 6 goblet squats · 6 rows / bras",
+                "scheme": "5 tours",
+                "note": "Une seule kettlebell, jamais posée pendant le tour. Commence à 12 kg. Chronomètre chaque tour : quand les 5 tours descendent sous 8 min, tu montes de taille.",
+                "kind": "h",
+                "sets": 5,
+                "restSeconds": 90,
+                "timed": false
+              }
+            ]
+          },
+          {
+            "name": "Haut du corps — repos 90 s",
+            "exercises": [
+              {
+                "id": "d3c1",
+                "code": "D",
+                "name": "Dips lestés",
+                "scheme": "3 × 8",
+                "note": "",
+                "kind": "v",
+                "sets": 3,
+                "restSeconds": 90,
+                "timed": false
+              },
+              {
+                "id": "d3c2",
+                "code": "E",
+                "name": "Superset curl marteau + curl inversé",
+                "scheme": "3 × 12 + 12",
+                "note": "Extrait de tes vidéos bras. Enchaîné sans repos, c'est tout le volume biceps dont tu as besoin en plus du mardi.",
+                "kind": "v",
+                "sets": 3,
+                "restSeconds": 90,
+                "timed": false
+              }
+            ]
+          },
+          {
+            "name": "Finisher — 10 min",
+            "exercises": [
+              {
+                "id": "d3d1",
+                "code": "F",
+                "name": "Tapis incliné 12 %, marche rapide",
+                "scheme": "10 min",
+                "note": "Marche, pas course. À 60 kg, le cardio intense mange le surplus calorique que tu paies 80 € par mois.",
+                "kind": "h",
+                "sets": 1,
+                "restSeconds": 600,
+                "timed": true
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "finance": {
+    "categories": [
+      {
+        "id": "cat-logement",
+        "name": "LOGEMENT"
+      },
+      {
+        "id": "cat-transport",
+        "name": "TRANSPORT"
+      },
+      {
+        "id": "cat-alimentation",
+        "name": "ALIMENTATION"
+      },
+      {
+        "id": "cat-telecom",
+        "name": "TÉLÉCOM & ABOS"
+      },
+      {
+        "id": "cat-sport-sante",
+        "name": "SPORT & SANTÉ"
+      },
+      {
+        "id": "cat-etudes",
+        "name": "ÉTUDES"
+      },
+      {
+        "id": "cat-personnel",
+        "name": "PERSONNEL"
+      },
+      {
+        "id": "cat-epargne",
+        "name": "ÉPARGNE & INVEST"
+      },
+      {
+        "id": "cat-imprevus",
+        "name": "IMPRÉVUS"
+      }
+    ],
+    "postes": [
+      {
+        "id": "pos-01",
+        "categoryId": "cat-logement",
+        "name": "Loyer (Herserange)",
+        "type": "fixe",
+        "planned": 611.0,
+        "dueDay": 5,
+        "note": "Net de charges"
+      },
+      {
+        "id": "pos-02",
+        "categoryId": "cat-logement",
+        "name": "Charges locatives",
+        "type": "fixe",
+        "planned": 0.0,
+        "dueDay": 5,
+        "note": ""
+      },
+      {
+        "id": "pos-03",
+        "categoryId": "cat-logement",
+        "name": "Électricité (Engie)",
+        "type": "fixe",
+        "planned": 57.0,
+        "dueDay": 10,
+        "note": "Mensualisation"
+      },
+      {
+        "id": "pos-04",
+        "categoryId": "cat-logement",
+        "name": "Eau (Veolia)",
+        "type": "fixe",
+        "planned": 20.0,
+        "dueDay": 10,
+        "note": "Mensualisation en place"
+      },
+      {
+        "id": "pos-05",
+        "categoryId": "cat-logement",
+        "name": "Assurance habitation",
+        "type": "fixe",
+        "planned": 9.09,
+        "dueDay": 5,
+        "note": ""
+      },
+      {
+        "id": "pos-06",
+        "categoryId": "cat-logement",
+        "name": "Internet / box (Bouygues)",
+        "type": "fixe",
+        "planned": 54.99,
+        "dueDay": 15,
+        "note": ""
+      },
+      {
+        "id": "pos-07",
+        "categoryId": "cat-transport",
+        "name": "Carburant",
+        "type": "variable",
+        "planned": 60.0,
+        "dueDay": null,
+        "note": "Faire les pleins au Luxembourg"
+      },
+      {
+        "id": "pos-08",
+        "categoryId": "cat-transport",
+        "name": "Abonnement train Longwy–Rodange",
+        "type": "fixe",
+        "planned": 0.0,
+        "dueDay": 1,
+        "note": "Segment FR seul ; portion LU gratuite"
+      },
+      {
+        "id": "pos-09",
+        "categoryId": "cat-transport",
+        "name": "Billets train Paris–Longwy",
+        "type": "variable",
+        "planned": 45.0,
+        "dueDay": null,
+        "note": "≈ 2 A/R par mois"
+      },
+      {
+        "id": "pos-10",
+        "categoryId": "cat-transport",
+        "name": "Assurance auto",
+        "type": "fixe",
+        "planned": 0.0,
+        "dueDay": 5,
+        "note": ""
+      },
+      {
+        "id": "pos-11",
+        "categoryId": "cat-transport",
+        "name": "Entretien véhicule",
+        "type": "variable",
+        "planned": 0.0,
+        "dueDay": null,
+        "note": "Lisser sur l'année"
+      },
+      {
+        "id": "pos-12",
+        "categoryId": "cat-transport",
+        "name": "Péages",
+        "type": "variable",
+        "planned": 0.0,
+        "dueDay": null,
+        "note": ""
+      },
+      {
+        "id": "pos-13",
+        "categoryId": "cat-alimentation",
+        "name": "Courses",
+        "type": "variable",
+        "planned": 80.0,
+        "dueDay": null,
+        "note": "Budget que tu m'as indiqué"
+      },
+      {
+        "id": "pos-14",
+        "categoryId": "cat-alimentation",
+        "name": "Café (boules CoffeeB)",
+        "type": "variable",
+        "planned": 0.0,
+        "dueDay": null,
+        "note": "Achat par lots de 10 boîtes"
+      },
+      {
+        "id": "pos-15",
+        "categoryId": "cat-alimentation",
+        "name": "Repas extérieur",
+        "type": "variable",
+        "planned": 0.0,
+        "dueDay": null,
+        "note": ""
+      },
+      {
+        "id": "pos-16",
+        "categoryId": "cat-telecom",
+        "name": "Forfait mobile Bouygues",
+        "type": "fixe",
+        "planned": 0.0,
+        "dueDay": 5,
+        "note": "Vérifier l'itinérance depuis le Luxembourg"
+      },
+      {
+        "id": "pos-17",
+        "categoryId": "cat-telecom",
+        "name": "Abonnements numériques",
+        "type": "fixe",
+        "planned": 16.0,
+        "dueDay": 1,
+        "note": "Streaming, cloud, IA…"
+      },
+      {
+        "id": "pos-18",
+        "categoryId": "cat-sport-sante",
+        "name": "Basic-Fit",
+        "type": "fixe",
+        "planned": 34.99,
+        "dueDay": 1,
+        "note": "Vérifier si frais de carte annuel en plus"
+      },
+      {
+        "id": "pos-19",
+        "categoryId": "cat-sport-sante",
+        "name": "Mutuelle",
+        "type": "fixe",
+        "planned": 0.0,
+        "dueDay": 5,
+        "note": ""
+      },
+      {
+        "id": "pos-20",
+        "categoryId": "cat-sport-sante",
+        "name": "Santé / pharmacie",
+        "type": "variable",
+        "planned": 0.0,
+        "dueDay": null,
+        "note": ""
+      },
+      {
+        "id": "pos-21",
+        "categoryId": "cat-etudes",
+        "name": "Frais KEDGE",
+        "type": "fixe",
+        "planned": 0.0,
+        "dueDay": 1,
+        "note": "Mensualisé si échelonné"
+      },
+      {
+        "id": "pos-22",
+        "categoryId": "cat-etudes",
+        "name": "Fournitures / logiciels",
+        "type": "variable",
+        "planned": 0.0,
+        "dueDay": null,
+        "note": ""
+      },
+      {
+        "id": "pos-23",
+        "categoryId": "cat-personnel",
+        "name": "Vêtements",
+        "type": "variable",
+        "planned": 0.0,
+        "dueDay": null,
+        "note": ""
+      },
+      {
+        "id": "pos-24",
+        "categoryId": "cat-personnel",
+        "name": "Coiffeur",
+        "type": "variable",
+        "planned": 0.0,
+        "dueDay": null,
+        "note": ""
+      },
+      {
+        "id": "pos-25",
+        "categoryId": "cat-personnel",
+        "name": "Loisirs / sorties",
+        "type": "variable",
+        "planned": 0.0,
+        "dueDay": null,
+        "note": ""
+      },
+      {
+        "id": "pos-26",
+        "categoryId": "cat-personnel",
+        "name": "Cadeaux",
+        "type": "variable",
+        "planned": 0.0,
+        "dueDay": null,
+        "note": ""
+      },
+      {
+        "id": "pos-27",
+        "categoryId": "cat-epargne",
+        "name": "Épargne de précaution",
+        "type": "fixe",
+        "planned": 0.0,
+        "dueDay": 1,
+        "note": "À traiter comme une charge, pas un reste"
+      },
+      {
+        "id": "pos-28",
+        "categoryId": "cat-imprevus",
+        "name": "Marge de sécurité",
+        "type": "variable",
+        "planned": 0.0,
+        "dueDay": null,
+        "note": "5 à 10 % des revenus"
+      }
+    ],
+    "revenues": [
+      {
+        "id": "rev-1",
+        "name": "Gratification de stage (net)",
+        "amount": 1000.0
+      },
+      {
+        "id": "rev-2",
+        "name": "APL / CAF",
+        "amount": 0.0
+      },
+      {
+        "id": "rev-3",
+        "name": "Aide familiale",
+        "amount": 0.0
+      },
+      {
+        "id": "rev-4",
+        "name": "Autres revenus",
+        "amount": 0.0
+      }
+    ]
+  }
+};

@@ -1,0 +1,6 @@
+# macOS
+.DS_Store
+
+# Données personnelles — ne JAMAIS committer le fichier de données réel.
+# (data/jarvis-data.example.json est un exemple anonyme, lui est versionné.)
+jarvis-data.json

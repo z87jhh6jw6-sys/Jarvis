@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jarvis</title>
+<meta name="description" content="Sport, finances et habitudes. Application locale, sans compte ni serveur.">
+
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#f2f0ea">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Jarvis">
+<link rel="apple-touch-icon" href="./icons/icon-180.png">
+<link rel="icon" href="./icons/icon-192.png">
+
+<link rel="stylesheet" href="./css/tokens.css">
+<link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+
+<div id="boot" class="boot">Chargement…</div>
+
+<main id="app" class="app-root"></main>
+
+<!-- Minuteur de repos : global, survit aux changements d'onglet -->
+<div class="timer" id="timer" data-open="false" data-state="idle" role="timer" aria-live="polite">
+  <div class="timer-top">
+    <span class="timer-label" id="timerLabel">Minuteur de repos</span>
+    <span class="timer-clock" id="timerClock">0:00</span>
+  </div>
+  <div class="bar"><i id="timerBar"></i></div>
+  <div class="timer-controls">
+    <button class="btn sm" id="timerMinus" type="button" aria-label="Retirer 15 secondes">−15 s</button>
+    <button class="btn sm primary" id="timerPlay" type="button" aria-label="Démarrer ou mettre en pause">▶</button>
+    <button class="btn sm" id="timerPlus" type="button" aria-label="Ajouter 15 secondes">+15 s</button>
+    <button class="btn sm" id="timerClose" type="button" aria-label="Fermer le minuteur">✕</button>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="#/" data-nav-link><span class="nav-icon" aria-hidden="true">◍</span><span>Accueil</span></a>
+  <a href="#/sport" data-nav-link><span class="nav-icon" aria-hidden="true">◆</span><span>Sport</span></a>
+  <a href="#/finance" data-nav-link><span class="nav-icon" aria-hidden="true">▤</span><span>Budget</span></a>
+  <a href="#/habits" data-nav-link><span class="nav-icon" aria-hidden="true">✓</span><span>Habitudes</span></a>
+  <a href="#/tasks" data-nav-link><span class="nav-icon" aria-hidden="true">☰</span><span>Tâches</span></a>
+</nav>
+
+<script type="module" src="./js/app.js"></script>
+</body>
+</html>
