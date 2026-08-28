@@ -3,6 +3,7 @@
 // tout ce qui entre passe par normalize().
 
 import { SEED } from "./seed.js";
+import { computeTargets } from "./profile.js";
 import { isValidDateISO, parseNumber, clampString } from "./utils.js";
 
 export const SCHEMA_VERSION = 1;
@@ -18,6 +19,8 @@ export function emptyData() {
       sessions: [],
       // Dernière charge connue par exercice : { [exerciseId]: "60" }
       lastLoads: {},
+      // Blocs terminés, conservés pour l'historique.
+      archive: [],
       // Relevés de poids de corps : [{ date, kg }]
       weighIns: [],
     },
@@ -36,6 +39,29 @@ export function emptyData() {
     },
 
     tasks: [],
+
+    // Profil : sert à calculer les besoins journaliers (voir profile.js).
+    profile: {
+      sex: "homme",
+      age: null,
+      heightCm: null,
+      weightKg: null,
+      targetWeightKg: null,
+      activity: "modere",
+      goal: "masse",
+      auto: true, // false = objectifs saisis à la main
+      targets: { kcal: 0, protein: 0, waterMl: 0 },
+    },
+
+    nutrition: {
+      entries: [],   // repas : { id, date, name, kcal, protein }
+      water: [],     // { date, ml }
+      favorites: [], // repas récurrents : { id, name, kcal, protein }
+    },
+
+    // Onglets affichés. Permet d'adapter l'app à quelqu'un que le sport
+    // n'intéresse pas, sans toucher au code.
+    tabs: { sport: true, nutrition: true, finance: true, habits: true, tasks: true },
   };
 }
 
@@ -63,6 +89,15 @@ export function normalize(raw) {
       program: cleanProgram(hasProgram ? program : base.sport.program, raw?.sport?.program),
       sessions: arr(raw?.sport?.sessions).filter(isValidSession).map(cleanSession),
       lastLoads: cleanLastLoads(raw?.sport?.lastLoads),
+      archive: arr(raw?.sport?.archive)
+        .filter((b) => b && typeof b.name === "string")
+        .map((b) => ({
+          name: clampString(b.name, 80),
+          startDate: isValidDateISO(b.startDate) ? b.startDate : null,
+          endDate: isValidDateISO(b.endDate) ? b.endDate : null,
+          sessions: Math.max(0, parseNumber(b.sessions) ?? 0),
+          templateId: clampString(b.templateId, 30),
+        })),
       weighIns: arr(raw?.sport?.weighIns)
         .filter((w) => isValidDateISO(w?.date) && parseNumber(w?.kg) !== null)
         .map((w) => ({ date: w.date, kg: parseNumber(w.kg) })),
@@ -116,7 +151,77 @@ export function normalize(raw) {
         createdAt: typeof t.createdAt === "string" ? t.createdAt : new Date().toISOString(),
         note: clampString(t.note, 300),
       })),
+
+    profile: cleanProfile(raw?.profile, base.profile),
+
+    nutrition: {
+      entries: arr(raw?.nutrition?.entries)
+        .filter((e) => e && typeof e.id === "string" && isValidDateISO(e.date))
+        .map((e) => ({
+          id: e.id,
+          date: e.date,
+          name: clampString(e.name, 80),
+          kcal: Math.max(0, parseNumber(e.kcal) ?? 0),
+          protein: Math.max(0, parseNumber(e.protein) ?? 0),
+        })),
+      water: arr(raw?.nutrition?.water)
+        .filter((w) => w && isValidDateISO(w.date))
+        .map((w) => ({ date: w.date, ml: Math.max(0, parseNumber(w.ml) ?? 0) })),
+      favorites: arr(raw?.nutrition?.favorites)
+        .filter((f) => f && typeof f.id === "string" && typeof f.name === "string")
+        .map((f) => ({
+          id: f.id,
+          name: clampString(f.name, 80),
+          kcal: Math.max(0, parseNumber(f.kcal) ?? 0),
+          protein: Math.max(0, parseNumber(f.protein) ?? 0),
+        })),
+    },
+
+    tabs: cleanTabs(raw?.tabs, base.tabs),
   };
+}
+
+const SEXES = ["homme", "femme"];
+const ACTIVITIES = ["sedentaire", "leger", "modere", "actif", "tres-actif"];
+const GOAL_IDS = ["masse", "force", "tonifier", "seche", "maintien", "cardio"];
+
+function cleanProfile(raw, base) {
+  const p = obj(raw);
+  const num = (v, min, max) => {
+    const n = parseNumber(v);
+    return n !== null && n >= min && n <= max ? n : null;
+  };
+  const profile = {
+    sex: SEXES.includes(p.sex) ? p.sex : base.sex,
+    age: num(p.age, 10, 110),
+    heightCm: num(p.heightCm, 100, 250),
+    weightKg: num(p.weightKg, 25, 300),
+    targetWeightKg: num(p.targetWeightKg, 25, 300),
+    activity: ACTIVITIES.includes(p.activity) ? p.activity : base.activity,
+    goal: GOAL_IDS.includes(p.goal) ? p.goal : base.goal,
+    auto: p.auto === false ? false : true,
+    targets: {
+      kcal: Math.max(0, parseNumber(p?.targets?.kcal) ?? 0),
+      protein: Math.max(0, parseNumber(p?.targets?.protein) ?? 0),
+      waterMl: Math.max(0, parseNumber(p?.targets?.waterMl) ?? 0),
+    },
+  };
+  // Si les objectifs manuels sont vides, on les préremplit avec le calcul
+  // pour que l'utilisateur parte d'une base plutôt que de zéros.
+  if (!profile.targets.kcal) {
+    const auto = computeTargets(profile);
+    if (auto) profile.targets = auto;
+  }
+  return profile;
+}
+
+function cleanTabs(raw, base) {
+  const t = obj(raw);
+  const out = {};
+  for (const key of Object.keys(base)) {
+    out[key] = t[key] === false ? false : true;
+  }
+  return out;
 }
 
 // Préserve startDate (posée à la première séance) et borne bodyweight.
@@ -124,6 +229,8 @@ function cleanProgram(program, rawProgram) {
   const p = JSON.parse(JSON.stringify(program));
   const rawStart = rawProgram?.startDate;
   p.startDate = isValidDateISO(rawStart) ? rawStart : (isValidDateISO(p.startDate) ? p.startDate : null);
+  p.blockNumber = Math.max(1, Math.round(parseNumber(rawProgram?.blockNumber ?? p.blockNumber) || 1));
+  p.templateId = clampString(rawProgram?.templateId ?? p.templateId ?? "", 30);
   return p;
 }
 

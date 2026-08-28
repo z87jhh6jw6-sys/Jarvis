@@ -1,5 +1,6 @@
 import { getState, update, subscribe } from "../state.js";
 import { startRest } from "../components/timer.js";
+import { BLOCK_TEMPLATES, suggestNext, buildProgram, templateById } from "../blocks.js";
 import {
   uid,
   todayISO,
@@ -9,6 +10,7 @@ import {
   parseNumber,
   parsePositive,
   clampString,
+  isNonEmptyString,
   sum,
 } from "../utils.js";
 
@@ -23,8 +25,15 @@ export function render(container) {
   const wrap = document.createElement("div");
   container.appendChild(wrap);
   const unsub = subscribe(draw);
+  // Changer d'onglet interne ou de bloc ne modifie pas forcément le state :
+  // on redessine alors explicitement.
+  const onRerender = () => draw();
+  window.addEventListener("jarvis:rerender", onRerender);
   draw();
-  return unsub;
+  return () => {
+    unsub();
+    window.removeEventListener("jarvis:rerender", onRerender);
+  };
 
   function draw() {
     const data = getState();
@@ -49,9 +58,11 @@ export function render(container) {
         }
         <div class="tabbar" role="tablist">
           ${tabBtn("seance", "Séance")}
+          ${tabBtn("programme", "Programme")}
           ${tabBtn("progression", "Progression")}
           ${tabBtn("historique", "Historique")}
           ${tabBtn("poids", "Poids")}
+          ${tabBtn("blocs", "Blocs")}
         </div>
       </header>
       <div id="sportBody"></div>
@@ -68,6 +79,8 @@ export function render(container) {
     if (activeTab === "historique") renderHistory(body, data);
     else if (activeTab === "poids") renderWeight(body, data);
     else if (activeTab === "progression") renderProgression(body, data);
+    else if (activeTab === "programme") renderEditor(body, data, days);
+    else if (activeTab === "blocs") renderBlocks(body, data);
     else renderSession(body, data, days);
   }
 
@@ -100,7 +113,19 @@ function renderSession(root, data, days) {
 
   const lastLoads = data.sport.lastLoads || {};
 
+  const finished = blockFinished(data.sport.program);
+
   root.innerHTML = `
+    ${
+      finished
+        ? `<div class="hero" style="margin-bottom:var(--sp-4)">
+             <div class="hero-label">Bloc terminé</div>
+             <div class="hero-value">${esc(data.sport.program.name)} — ${data.sport.program.weeks} semaines bouclées</div>
+             <div class="hero-sub">Le corps s'est adapté : c'est le moment de changer de bloc pour relancer la progression.</div>
+             <button class="btn block cta" id="goBlocks" style="margin-top:var(--sp-3);background:var(--c-brand-contrast);color:var(--c-brand);border-color:var(--c-brand-contrast)">Choisir la suite</button>
+           </div>`
+        : ""
+    }
     <div class="tabbar" role="tablist" style="margin-bottom:var(--sp-3)">
       ${days
         .map(
@@ -122,6 +147,11 @@ function renderSession(root, data, days) {
     </div>
     <button class="btn primary block cta" id="saveSession">Enregistrer la séance</button>
   `;
+
+  root.querySelector("#goBlocks")?.addEventListener("click", () => {
+    activeTab = "blocs";
+    window.dispatchEvent(new CustomEvent("jarvis:rerender"));
+  });
 
   root.querySelectorAll("[data-day]").forEach((b) =>
     b.addEventListener("click", () => {
@@ -238,6 +268,283 @@ function exerciseCard(ex, lastLoad) {
   }
 
   return card;
+}
+
+// --- Blocs ---------------------------------------------------------------
+// Un programme ne dure pas éternellement : au bout de 10 à 12 semaines le
+// corps s'est adapté. On archive le bloc terminé et on enchaîne.
+
+function blockFinished(program) {
+  if (!program?.weeks || !program.startDate) return false;
+  return currentWeek(program) >= program.weeks;
+}
+
+function renderBlocks(root, data) {
+  const program = data.sport.program;
+  const week = currentWeek(program);
+  const finished = blockFinished(program);
+  const lastWeigh = [...data.sport.weighIns].sort((a, b) => (a.date < b.date ? 1 : -1))[0];
+  const currentKg = lastWeigh?.kg ?? data.profile?.weightKg ?? null;
+  const suggested = suggestNext(program, data.profile, currentKg);
+  const target = data.profile?.targetWeightKg;
+  const reached = target && currentKg && currentKg >= target;
+
+  root.innerHTML = `
+    <div class="card">
+      <div class="card-label">Bloc en cours</div>
+      <div class="card-value" style="font-size:var(--fs-lg)">${esc(program.name || "Bloc 1")}</div>
+      <div class="card-sub">${
+        program.weeks
+          ? week
+            ? `semaine ${week} sur ${program.weeks}${finished ? " — terminé" : ""}`
+            : `${program.weeks} semaines — démarre à ta première séance enregistrée`
+          : "sans limite de durée"
+      }</div>
+      ${
+        program.weeks && week
+          ? `<div class="bar" style="margin-top:var(--sp-3)"><i style="width:${Math.min(100, (week / program.weeks) * 100)}%"></i></div>`
+          : ""
+      }
+    </div>
+
+    ${
+      reached
+        ? `<div class="card" style="margin-top:var(--sp-3)">
+             <div class="card-label">Objectif de poids atteint</div>
+             <p class="card-sub">Tu es à ${formatWeight(currentKg)} kg pour un objectif de ${formatWeight(target)} kg.
+             Le bloc Entretien est fait pour la suite : garder ce que tu as construit sans y passer ta vie.</p>
+           </div>`
+        : ""
+    }
+
+    <h3 class="section-title">Bloc conseillé pour la suite</h3>
+    ${suggested ? blockCard(suggested, true) : ""}
+
+    <h3 class="section-title">Autres blocs</h3>
+    ${BLOCK_TEMPLATES.filter((t) => t.id !== suggested?.id).map((t) => blockCard(t, false)).join("")}
+
+    ${
+      data.sport.archive.length
+        ? `<h3 class="section-title">Blocs terminés</h3>
+           <div class="list">${data.sport.archive
+             .map(
+               (b) => `<div class="row">
+                 <div class="row-main">
+                   <div class="row-title">${esc(b.name)}</div>
+                   <div class="row-sub">${b.startDate ? formatDate(b.startDate) : "?"} → ${b.endDate ? formatDate(b.endDate) : "?"} · ${b.sessions} séance${b.sessions > 1 ? "s" : ""}</div>
+                 </div>
+               </div>`
+             )
+             .join("")}</div>`
+        : ""
+    }
+  `;
+
+  root.querySelectorAll("[data-start-block]").forEach((b) =>
+    b.addEventListener("click", () => startBlock(b.dataset.startBlock, root))
+  );
+}
+
+function blockCard(t, recommended) {
+  return `
+    <div class="card" style="margin-bottom:var(--sp-3)">
+      <div class="row" style="border:0;padding:0;background:transparent;box-shadow:none">
+        <div class="row-main">
+          <div class="row-title">${esc(t.name)} ${recommended ? '<span class="badge pos">conseillé</span>' : ""}</div>
+          <div class="row-sub">${esc(t.subtitle)}</div>
+        </div>
+      </div>
+      <p class="ex-note">${esc(t.why)}</p>
+      <button class="btn ${recommended ? "primary cta" : ""} block" data-start-block="${t.id}" style="margin-top:var(--sp-3)">
+        Démarrer ce bloc
+      </button>
+    </div>`;
+}
+
+function startBlock(templateId, root) {
+  const t = templateById(templateId);
+  if (!t) return;
+  const data = getState();
+  const sessions = data.sport.sessions.length;
+  if (
+    !confirm(
+      `Démarrer « ${t.name} » ?\n\nLe bloc en cours sera archivé. Tes séances et tes charges sont conservées, seuls les exercices du programme changent. Ta routine du matin reste en place.`
+    )
+  )
+    return;
+
+  update((s) => {
+    const old = s.sport.program;
+    s.sport.archive.push({
+      name: old.name || "Bloc",
+      startDate: old.startDate || null,
+      endDate: todayISO(),
+      sessions,
+      templateId: old.templateId || "",
+    });
+    const nextNumber = (old.blockNumber || 1) + 1;
+    s.sport.program = buildProgram(t, old, nextNumber);
+  });
+
+  activeDayId = null;
+  activeTab = "seance";
+  draft = {};
+  draftDayId = null;
+  toast(`${t.name} démarré. Bonne série.`);
+  window.dispatchEvent(new CustomEvent("jarvis:rerender"));
+}
+
+// --- Éditeur de programme ------------------------------------------------
+// Le programme n'est pas figé : on doit pouvoir remplacer un exercice qui
+// ne passe pas, alléger un jour, ou en retirer un dont on a marre.
+
+function renderEditor(root, data, days) {
+  const day = days.find((d) => d.id === activeDayId) || days[0];
+  if (!day) {
+    root.innerHTML = `<p class="empty">Aucun jour dans le programme.</p>`;
+    return;
+  }
+
+  root.innerHTML = `
+    <div class="tabbar" role="tablist" style="margin-bottom:var(--sp-3)">
+      ${days
+        .map(
+          (d) =>
+            `<button class="tab" role="tab" data-day="${d.id}" aria-selected="${d.id === day.id}">${esc(d.weekday)}</button>`
+        )
+        .join("")}
+    </div>
+    <p class="card-sub" style="margin-bottom:var(--sp-4)">
+      Modifie librement : les charges déjà enregistrées restent liées à
+      l'exercice, donc renommer ne fait pas perdre l'historique.
+    </p>
+    <div id="editBlocks"></div>
+    <button class="btn block ghost" id="addBlock" style="margin-top:var(--sp-4)">+ Ajouter un bloc</button>
+  `;
+
+  root.querySelectorAll("[data-day]").forEach((b) =>
+    b.addEventListener("click", () => {
+      activeDayId = b.dataset.day;
+      renderEditor(root, getState(), days);
+    })
+  );
+
+  const box = root.querySelector("#editBlocks");
+  day.blocks.forEach((block, bi) => {
+    const el = document.createElement("div");
+    el.className = "card";
+    el.style.marginBottom = "var(--sp-3)";
+    el.innerHTML = `
+      <div class="row" style="border:0;padding:0;background:transparent;box-shadow:none">
+        <input class="input" value="${esc(block.name)}" data-block-name="${bi}" aria-label="Nom du bloc">
+        <button class="icon-btn danger" data-del-block="${bi}" aria-label="Supprimer le bloc">✕</button>
+      </div>
+      <div class="edit-list"></div>
+      <button class="btn block subtle" data-add-ex="${bi}" style="margin-top:var(--sp-2)">+ Ajouter un exercice</button>
+    `;
+    const list = el.querySelector(".edit-list");
+    block.exercises.forEach((ex, ei) => {
+      const row = document.createElement("div");
+      row.className = "edit-ex";
+      row.innerHTML = `
+        <input class="input" value="${esc(ex.name)}" data-ex="${bi}:${ei}:name" aria-label="Nom de l'exercice">
+        <div class="form-grid" style="margin-top:var(--sp-2)">
+          <input class="input" value="${esc(ex.scheme)}" data-ex="${bi}:${ei}:scheme" aria-label="Séries et répétitions" placeholder="4 × 8">
+          <input class="input" value="${ex.sets}" type="text" inputmode="numeric" data-ex="${bi}:${ei}:sets" aria-label="Nombre de séries à cocher">
+        </div>
+        <div class="form-grid" style="margin-top:var(--sp-2)">
+          <input class="input" value="${ex.restSeconds}" type="text" inputmode="numeric" data-ex="${bi}:${ei}:restSeconds" aria-label="Repos en secondes" placeholder="Repos (s)">
+          <button class="btn danger" data-del-ex="${bi}:${ei}">Supprimer</button>
+        </div>
+        <textarea class="textarea" data-ex="${bi}:${ei}:note" placeholder="Note technique (optionnel)" aria-label="Note">${esc(ex.note || "")}</textarea>
+      `;
+      list.appendChild(row);
+    });
+    box.appendChild(el);
+  });
+
+  // Enregistrement à la volée
+  box.querySelectorAll("[data-ex]").forEach((input) =>
+    input.addEventListener("change", () => {
+      const [bi, ei, field] = input.dataset.ex.split(":");
+      update((s) => {
+        const d = s.sport.program.days.find((x) => x.id === day.id);
+        const ex = d?.blocks[bi]?.exercises[ei];
+        if (!ex) return;
+        if (field === "sets" || field === "restSeconds") {
+          const n = parseNumber(input.value);
+          if (n !== null && n >= 0) ex[field] = Math.round(n);
+        } else if (field === "name") {
+          if (isNonEmptyString(input.value, 120)) ex.name = clampString(input.value, 120);
+        } else {
+          ex[field] = clampString(input.value, field === "note" ? 400 : 40);
+        }
+      });
+    })
+  );
+
+  box.querySelectorAll("[data-block-name]").forEach((input) =>
+    input.addEventListener("change", () => {
+      update((s) => {
+        const d = s.sport.program.days.find((x) => x.id === day.id);
+        const b = d?.blocks[input.dataset.blockName];
+        if (b && isNonEmptyString(input.value, 80)) b.name = clampString(input.value, 80);
+      });
+    })
+  );
+
+  box.querySelectorAll("[data-del-ex]").forEach((b) =>
+    b.addEventListener("click", () => {
+      const [bi, ei] = b.dataset.delEx.split(":");
+      if (!confirm("Supprimer cet exercice du programme ?")) return;
+      update((s) => {
+        const d = s.sport.program.days.find((x) => x.id === day.id);
+        d?.blocks[bi]?.exercises.splice(ei, 1);
+      });
+      renderEditor(root, getState(), getState().sport.program.days);
+    })
+  );
+
+  box.querySelectorAll("[data-add-ex]").forEach((b) =>
+    b.addEventListener("click", () => {
+      update((s) => {
+        const d = s.sport.program.days.find((x) => x.id === day.id);
+        const block = d?.blocks[b.dataset.addEx];
+        if (!block) return;
+        block.exercises.push({
+          id: uid("ex-"),
+          code: String.fromCharCode(65 + block.exercises.length),
+          name: "Nouvel exercice",
+          scheme: "3 × 10",
+          note: "",
+          kind: "v",
+          sets: 3,
+          restSeconds: 90,
+          timed: false,
+        });
+      });
+      renderEditor(root, getState(), getState().sport.program.days);
+    })
+  );
+
+  box.querySelectorAll("[data-del-block]").forEach((b) =>
+    b.addEventListener("click", () => {
+      if (!confirm("Supprimer ce bloc et tous ses exercices ?")) return;
+      update((s) => {
+        const d = s.sport.program.days.find((x) => x.id === day.id);
+        d?.blocks.splice(b.dataset.delBlock, 1);
+      });
+      renderEditor(root, getState(), getState().sport.program.days);
+    })
+  );
+
+  root.querySelector("#addBlock").addEventListener("click", () => {
+    update((s) => {
+      const d = s.sport.program.days.find((x) => x.id === day.id);
+      d?.blocks.push({ name: "Nouveau bloc — repos 90 s", exercises: [] });
+    });
+    renderEditor(root, getState(), getState().sport.program.days);
+  });
 }
 
 // Semaine courante du bloc (1-indexée), null tant qu'aucune séance.
@@ -383,7 +690,12 @@ function renderHistory(root, data) {
 // --- Poids de corps --------------------------------------------------------
 
 function renderWeight(root, data) {
-  const bw = data.sport.program.bodyweight || { start: 60, target: 64 };
+  const bwSeed = data.sport.program.bodyweight || { start: 60, target: 64 };
+  // Le poids visé se règle dans le profil ; le programme ne sert que de repli.
+  const bw = {
+    start: data.profile?.weightKg ?? bwSeed.start,
+    target: data.profile?.targetWeightKg ?? bwSeed.target,
+  };
   const weighIns = [...data.sport.weighIns].sort((a, b) => (a.date < b.date ? 1 : -1));
   const current = weighIns[0]?.kg ?? bw.start;
   const span = bw.target - bw.start;
@@ -396,9 +708,16 @@ function renderWeight(root, data) {
       <div class="card-value">${formatWeight(current)} kg</div>
       <div class="bar" style="margin-top:var(--sp-3)"><i style="width:${pct}%"></i></div>
       <div class="row-sub" style="display:flex;justify-content:space-between;margin-top:var(--sp-2)">
-        <span>${formatWeight(bw.start)} kg — départ</span>
-        <span>${left > 0 ? formatWeight(left) + " kg à prendre" : "objectif atteint"}</span>
+        <span>départ ${formatWeight(bw.start)} kg</span>
+        <span>objectif ${formatWeight(bw.target)} kg</span>
       </div>
+      <div class="card-sub">${
+        left > 0
+          ? formatWeight(left) + " kg à prendre"
+          : left < 0
+            ? formatWeight(-left) + " kg à perdre"
+            : "objectif atteint"
+      }${data.profile?.targetWeightKg ? "" : " — règle ton poids visé dans les Réglages"}</div>
     </div>
 
     <form class="form-card" id="weighForm" style="margin-top:var(--sp-3)">

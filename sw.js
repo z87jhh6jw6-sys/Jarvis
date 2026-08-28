@@ -4,7 +4,7 @@
 //
 // Incrémente CACHE_NAME à chaque modification d'un fichier listé ci-dessous,
 // sinon un appareil déjà installé continuera de servir l'ancienne version.
-const CACHE_NAME = "jarvis-v11";
+const CACHE_NAME = "jarvis-v14";
 
 const SHELL = [
   "./",
@@ -20,6 +20,8 @@ const SHELL = [
   "./js/idb.js",
   "./js/utils.js",
   "./js/seed.js",
+  "./js/profile.js",
+  "./js/blocks.js",
   "./js/components/timer.js",
   "./js/components/ring.js",
   "./js/modules/dashboard.js",
@@ -27,6 +29,7 @@ const SHELL = [
   "./js/modules/finance.js",
   "./js/modules/habits.js",
   "./js/modules/tasks.js",
+  "./js/modules/nutrition.js",
   "./js/modules/settings.js",
   "./icons/icon-180.png",
   "./icons/icon-192.png",

@@ -12,6 +12,8 @@ export const SEED = {
   "program": {
     "id": "bloc-1",
     "name": "Bloc 1 — Priorité masse",
+    "blockNumber": 1,
+    "templateId": "masse",
     "weeks": 12,
     "sessionsPerWeek": 3,
     "bodyweight": {
@@ -20,6 +22,167 @@ export const SEED = {
       "unit": "kg"
     },
     "days": [
+      {
+        "id": "d0",
+        "weekday": "Tous les jours",
+        "title": "Réveil",
+        "intro": "Consigne du kiné : gainer et muscler le dos pour se fabriquer un corset naturel. La routine suit ça — on remet la colonne en mouvement, puis on renforce la ceinture, de face comme de dos. Rien ne doit tirer ni piquer : amplitude confortable, jamais le maximum. Compte 18 minutes ; si c'est trop long le matin, allège dans l'onglet Programme plutôt que de sauter la séance.",
+        "daily": true,
+        "blocks": [
+          {
+            "name": "Mobilité — repos 15 s",
+            "exercises": [
+              {
+                "id": "d0a1",
+                "code": "A",
+                "name": "Chat-chameau",
+                "scheme": "1 × 10",
+                "note": "À quatre pattes, on creuse puis on arrondit le dos lentement, en suivant la respiration. Amplitude confortable seulement.",
+                "kind": "h",
+                "sets": 1,
+                "restSeconds": 15,
+                "timed": false
+              },
+              {
+                "id": "d0a2",
+                "code": "B",
+                "name": "Rotation thoracique à genoux",
+                "scheme": "1 × 8 / côté",
+                "note": "Une main derrière la tête, on ouvre le coude vers le plafond. La rotation vient du haut du dos, pas des lombaires.",
+                "kind": "h",
+                "sets": 1,
+                "restSeconds": 15,
+                "timed": false
+              },
+              {
+                "id": "d0a3",
+                "code": "C",
+                "name": "Fente basse — étirement du psoas",
+                "scheme": "1 × 30 s / côté",
+                "note": "Genou arrière au sol, bassin poussé vers l'avant, fessier serré. Les fléchisseurs de hanche raides tirent sur les lombaires toute la journée.",
+                "kind": "h",
+                "sets": 1,
+                "restSeconds": 15,
+                "timed": false
+              },
+              {
+                "id": "d0a4",
+                "code": "D",
+                "name": "Posture de l'enfant, bras tendus",
+                "scheme": "1 × 30 s",
+                "note": "Décompression du dos. Respire dans les côtes plutôt que dans le ventre.",
+                "kind": "h",
+                "sets": 1,
+                "restSeconds": 15,
+                "timed": false
+              }
+            ]
+          },
+          {
+            "name": "Corset — face avant, repos 45 s",
+            "exercises": [
+              {
+                "id": "d0b1",
+                "code": "E",
+                "name": "Planche",
+                "scheme": "3 × 30 s",
+                "note": "Bassin rentré, fessiers serrés, dos plat. Mieux vaut 20 s propres que 45 s le dos creusé.",
+                "kind": "h",
+                "sets": 3,
+                "restSeconds": 45,
+                "timed": false
+              },
+              {
+                "id": "d0b2",
+                "code": "F",
+                "name": "Planche latérale",
+                "scheme": "3 × 20 s / côté",
+                "note": "L'exercice le plus utile de la routine pour toi : il travaille les muscles latéraux du tronc, ceux qui soutiennent une colonne qui dévie. Fais les deux côtés même si l'un est plus dur — et note lequel.",
+                "kind": "h",
+                "sets": 3,
+                "restSeconds": 45,
+                "timed": false
+              },
+              {
+                "id": "d0b3",
+                "code": "G",
+                "name": "Bird-dog",
+                "scheme": "3 × 8 / côté",
+                "note": "Bras droit et jambe gauche tendus ensemble, sans que le bassin bascule. Gainage anti-rotation, très bien toléré par le dos.",
+                "kind": "h",
+                "sets": 3,
+                "restSeconds": 45,
+                "timed": false
+              },
+              {
+                "id": "d0b4",
+                "code": "H",
+                "name": "Dead bug",
+                "scheme": "2 × 10 / côté",
+                "note": "Allongé, lombaires plaquées au sol du début à la fin. Si elles décollent, réduis l'amplitude.",
+                "kind": "h",
+                "sets": 2,
+                "restSeconds": 45,
+                "timed": false
+              }
+            ]
+          },
+          {
+            "name": "Corset — dos, repos 45 s",
+            "exercises": [
+              {
+                "id": "d0d1",
+                "code": "I",
+                "name": "Superman alterné",
+                "scheme": "3 × 10",
+                "note": "À plat ventre, on lève bras droit et jambe gauche ensemble, sans à-coup. Renforce les érecteurs du rachis, les muscles qui tiennent la colonne droite — le cœur du corset dont parle ton kiné.",
+                "kind": "h",
+                "sets": 3,
+                "restSeconds": 45,
+                "timed": false
+              },
+              {
+                "id": "d0d2",
+                "code": "J",
+                "name": "Y-T-W au sol",
+                "scheme": "2 × 8 par lettre",
+                "note": "À plat ventre, bras au sol, on dessine successivement un Y, un T puis un W en décollant les bras. Cible les muscles entre les omoplates, souvent faibles et directement responsables de la tenue du haut du dos.",
+                "kind": "h",
+                "sets": 2,
+                "restSeconds": 45,
+                "timed": false
+              },
+              {
+                "id": "d0d3",
+                "code": "K",
+                "name": "Pont fessier",
+                "scheme": "3 × 12",
+                "note": "Fessiers serrés en haut, sans creuser les lombaires. Des fessiers forts déchargent le bas du dos.",
+                "kind": "h",
+                "sets": 3,
+                "restSeconds": 45,
+                "timed": false
+              }
+            ]
+          },
+          {
+            "name": "Activation — repos 30 s",
+            "exercises": [
+              {
+                "id": "d0c1",
+                "code": "I",
+                "name": "Pompes faciles",
+                "scheme": "2 × 8",
+                "note": "Volontairement loin de l'échec : c'est du réveil musculaire, pas une séance. Tu fais déjà développé couché, incliné et dips trois fois par semaine — en rajouter à fond tous les jours ne ferait que grignoter ta récupération et les calories dont tu as besoin pour prendre du poids.",
+                "kind": "v",
+                "sets": 2,
+                "restSeconds": 30,
+                "timed": false
+              }
+            ]
+          }
+        ]
+      },
       {
         "id": "d1",
         "weekday": "Mardi",

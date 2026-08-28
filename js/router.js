@@ -11,6 +11,7 @@ const THEMES = {
   "#/sport": "sport",
   "#/finance": "budget",
   "#/habits": "habits",
+  "#/nutrition": "nutrition",
   "#/tasks": "tasks",
   "#/settings": "settings",
 };

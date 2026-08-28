@@ -4,6 +4,7 @@
 import { getState, subscribe } from "../state.js";
 import { upcomingDue } from "./finance.js";
 import { ring } from "../components/ring.js";
+import { effectiveTargets } from "../profile.js";
 import {
   todayISO,
   currentMonth,
@@ -56,6 +57,13 @@ export function render(container) {
     );
     const nextDue = upcomingDue(data, 1)[0];
 
+    // --- Nutrition ---
+    const targets = effectiveTargets(data.profile);
+    const protToday = sum(
+      data.nutrition.entries.filter((e) => e.date === today),
+      (e) => e.protein
+    );
+
     // --- Poids ---
     const bw = data.sport.program.bodyweight || { start: 60, target: 64 };
     const lastWeigh = [...data.sport.weighIns].sort((a, b) => (a.date < b.date ? 1 : -1))[0];
@@ -81,7 +89,7 @@ export function render(container) {
       </div>
 
       <div class="card" style="margin-top:var(--sp-3)">
-        <div class="ring-row">
+        <div class="ring-grid">
           ${ring(sessionsWeek / 3, {
             value: String(sessionsWeek),
             unit: "/3 séances",
@@ -100,6 +108,12 @@ export function render(container) {
             unit: `/${activeHabits.length} cochées`,
             label: "Habitudes",
             color: "var(--brand-habits)",
+          })}
+          ${ring(targets.protein ? protToday / targets.protein : 0, {
+            value: String(Math.round(protToday)),
+            unit: targets.protein ? `/${targets.protein} g prot.` : "g prot.",
+            label: "Nutrition",
+            color: "var(--brand-nutrition)",
           })}
         </div>
       </div>

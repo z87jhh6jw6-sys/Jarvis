@@ -307,6 +307,10 @@ h3 { font-weight: var(--fw-medium); }
 
 .input, .select, .textarea {
   width: 100%;
+  /* 16 px minimum : en dessous, iOS zoome tout seul à la saisie et ne
+     revient jamais correctement en arrière. Empêcher le zoom vaut mieux
+     que de le rattraper après coup. */
+  font-size: max(16px, var(--fs-base));
   background: var(--c-surface-2);
   color: var(--c-text);
   border: var(--border-w) solid var(--c-border);
@@ -327,10 +331,10 @@ h3 { font-weight: var(--fw-medium); }
 .textarea { min-height: 72px; resize: vertical; }
 
 .input.compact {
-  width: 84px;
+  width: 92px;
   padding: var(--sp-2) var(--sp-3);
   font-family: var(--font-mono);
-  font-size: var(--fs-sm);
+  font-size: 16px; /* voir ci-dessus : jamais moins de 16 px sur iOS */
   text-align: right;
 }
 
@@ -478,6 +482,70 @@ h3 { font-weight: var(--fw-medium); }
   gap: var(--sp-2);
   padding: var(--sp-4) 0;
 }
+
+/* Quatre anneaux : deux par ligne, pour ne pas les rétrécir. */
+.ring-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4) var(--sp-2);
+  padding: var(--sp-4) 0;
+  justify-items: center;
+}
+
+.water-row { display: flex; gap: var(--sp-2); margin-top: var(--sp-3); flex-wrap: wrap; }
+.water-row .btn { flex: 1 1 auto; }
+
+.fav-check {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--c-text-soft);
+  margin: var(--sp-3) 0;
+}
+.fav-check input { width: 18px; height: 18px; accent-color: var(--c-brand); }
+
+.chips { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+
+.chip {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: var(--sp-2) var(--sp-5) var(--sp-2) var(--sp-3);
+  border: none;
+  border-left: 3px solid var(--c-brand);
+  border-radius: var(--radius-sm);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--c-text);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  text-align: left;
+}
+
+.chip-sub { font-size: var(--fs-xs); color: var(--c-text-faint); font-weight: var(--fw-normal); }
+
+.chip-del {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: var(--fs-xs);
+  color: var(--c-text-faint);
+  padding: 2px 4px;
+}
+
+/* ---------- Éditeur de programme ---------- */
+
+.edit-ex {
+  padding: var(--sp-3) 0;
+  border-top: var(--border-w) solid var(--c-border);
+}
+.edit-ex:first-child { border-top: 0; }
+.edit-ex .textarea { min-height: 54px; margin-top: var(--sp-2); }
+.btn.subtle { background: transparent; }
 
 /* ---------- Dashboard ---------- */
 
@@ -700,10 +768,22 @@ h3 { font-weight: var(--fw-medium); }
   box-shadow: var(--shadow);
   padding: var(--sp-4);
   z-index: 25;
-  transition: transform 240ms ease;
+  /* Fermé, le minuteur était seulement glissé hors cadre : sur iPhone la
+     barre de navigation et la zone de sécurité ne laissaient pas assez de
+     place, et il dépassait. On le rend réellement invisible. */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform 240ms ease, opacity 200ms ease, visibility 0s linear 240ms;
 }
 
-.timer[data-open="true"] { transform: translate(-50%, 0); }
+.timer[data-open="true"] {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: transform 240ms ease, opacity 200ms ease, visibility 0s;
+}
 .timer[data-state="warn"] { border-color: var(--c-warn); }
 
 /* Fin de repos : pas de son, donc le bandeau se retourne franchement

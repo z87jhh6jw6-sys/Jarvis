@@ -1,4 +1,4 @@
-import { getState, replaceState } from "../state.js";
+import { getState, replaceState, update } from "../state.js";
 import {
   supportsFileAccess,
   getBackend,
@@ -10,7 +10,24 @@ import {
   exportToFile,
   importFromFile,
 } from "../storage.js";
-import { esc, sum } from "../utils.js";
+import { esc, sum, parseNumber } from "../utils.js";
+import {
+  ACTIVITY_LEVELS,
+  GOALS,
+  basalRate,
+  maintenance,
+  computeTargets,
+  effectiveTargets,
+  isProfileComplete,
+} from "../profile.js";
+
+const TAB_LABELS = {
+  sport: "Sport",
+  nutrition: "Nutrition",
+  finance: "Budget",
+  habits: "Habitudes",
+  tasks: "Tâches",
+};
 
 export function render(container) {
   const wrap = document.createElement("div");
@@ -35,6 +52,45 @@ export function render(container) {
       <header class="page-header"><h1>Réglages</h1></header>
 
       <div class="card">
+        <div class="card-label">Mon profil</div>
+        <p class="card-sub" style="margin-bottom:var(--sp-3)">
+          Sert à estimer tes besoins journaliers en calories, protéines et eau.
+        </p>
+        <div class="form-grid">
+          <select class="select" id="pSex" aria-label="Sexe">
+            <option value="homme">Homme</option>
+            <option value="femme">Femme</option>
+          </select>
+          <input class="input" id="pAge" type="text" inputmode="numeric" placeholder="Âge" aria-label="Âge">
+        </div>
+        <div class="form-grid" style="margin-top:var(--sp-2)">
+          <input class="input" id="pHeight" type="text" inputmode="decimal" placeholder="Taille (cm)" aria-label="Taille en centimètres">
+          <input class="input" id="pWeight" type="text" inputmode="decimal" placeholder="Poids (kg)" aria-label="Poids en kilos">
+        </div>
+        <div class="form-grid" style="margin-top:var(--sp-2)">
+          <input class="input" id="pTarget" type="text" inputmode="decimal" placeholder="Poids visé (kg)" aria-label="Poids visé en kilos">
+        </div>
+        <label class="label" style="margin-top:var(--sp-3)">Niveau d'activité</label>
+        <select class="select" id="pActivity" aria-label="Niveau d'activité">
+          ${ACTIVITY_LEVELS.map((a) => `<option value="${a.id}">${esc(a.label)}</option>`).join("")}
+        </select>
+        <label class="label" style="margin-top:var(--sp-3)">Objectif</label>
+        <select class="select" id="pGoal" aria-label="Objectif">
+          ${GOALS.map((g) => `<option value="${g.id}">${esc(g.label)}</option>`).join("")}
+        </select>
+        <div id="pResult" style="margin-top:var(--sp-4)"></div>
+      </div>
+
+      <div class="card" style="margin-top:var(--sp-3)">
+        <div class="card-label">Onglets affichés</div>
+        <p class="card-sub" style="margin-bottom:var(--sp-3)">
+          Masque ce qui ne te sert pas. Les données ne sont pas effacées :
+          réactiver l'onglet les fait réapparaître.
+        </p>
+        <div id="tabToggles"></div>
+      </div>
+
+      <div class="card" style="margin-top:var(--sp-3)">
         <div class="card-label">Stockage</div>
         <div class="card-value" style="font-size:var(--fs-md)">
           ${linked ? "Fichier lié" : "Stockage local"}
@@ -114,6 +170,85 @@ export function render(container) {
         </p>
       </div>
     `;
+
+    // --- profil ---
+    const prof = data.profile;
+    const setVal = (sel, v) => { const el = wrap.querySelector(sel); if (el) el.value = v ?? ""; };
+    setVal("#pSex", prof.sex);
+    setVal("#pAge", prof.age);
+    setVal("#pHeight", prof.heightCm);
+    setVal("#pWeight", prof.weightKg);
+    setVal("#pTarget", prof.targetWeightKg);
+    setVal("#pActivity", prof.activity);
+    setVal("#pGoal", prof.goal);
+    drawTargets();
+
+    ["#pSex", "#pAge", "#pHeight", "#pWeight", "#pTarget", "#pActivity", "#pGoal"].forEach((sel) =>
+      wrap.querySelector(sel).addEventListener("change", saveProfile)
+    );
+
+    function saveProfile() {
+      update((s) => {
+        const p = s.profile;
+        p.sex = wrap.querySelector("#pSex").value;
+        p.age = parseNumber(wrap.querySelector("#pAge").value);
+        p.heightCm = parseNumber(wrap.querySelector("#pHeight").value);
+        p.weightKg = parseNumber(wrap.querySelector("#pWeight").value);
+        p.targetWeightKg = parseNumber(wrap.querySelector("#pTarget").value);
+        p.activity = wrap.querySelector("#pActivity").value;
+        p.goal = wrap.querySelector("#pGoal").value;
+        const auto = computeTargets(p);
+        if (auto && p.auto !== false) p.targets = auto;
+      });
+      drawTargets();
+    }
+
+    function drawTargets() {
+      const p = getState().profile;
+      const box = wrap.querySelector("#pResult");
+      if (!box) return;
+      if (!isProfileComplete(p)) {
+        box.innerHTML = `<p class="card-sub">Renseigne âge, taille et poids pour obtenir une estimation.</p>`;
+        return;
+      }
+      const t = effectiveTargets(p);
+      box.innerHTML = `
+        <div class="card-grid cols-3">
+          <div class="card"><div class="card-label">Calories</div><div class="card-value">${t.kcal}</div></div>
+          <div class="card"><div class="card-label">Protéines</div><div class="card-value">${t.protein} g</div></div>
+          <div class="card"><div class="card-label">Eau</div><div class="card-value">${(t.waterMl / 1000).toFixed(1).replace(".", ",")} L</div></div>
+        </div>
+        <p class="card-sub" style="margin-top:var(--sp-3)">
+          Métabolisme de base estimé ${basalRate(p)} kcal, dépense totale ${maintenance(p)} kcal.
+          C'est une estimation statistique, pas une mesure : suis ton poids deux à trois
+          semaines et ajuste de 200 kcal si la balance ne va pas dans le sens voulu.
+        </p>`;
+    }
+
+    // --- onglets affichés ---
+    const togglesBox = wrap.querySelector("#tabToggles");
+    togglesBox.innerHTML = Object.keys(TAB_LABELS)
+      .map(
+        (key) => `<label class="fav-check" style="justify-content:space-between">
+          <span>${esc(TAB_LABELS[key])}</span>
+          <input type="checkbox" data-tab="${key}" ${data.tabs[key] !== false ? "checked" : ""}>
+        </label>`
+      )
+      .join("");
+    togglesBox.querySelectorAll("[data-tab]").forEach((cb) =>
+      cb.addEventListener("change", () => {
+        const on = cb.checked;
+        const key = cb.dataset.tab;
+        const remaining = Object.keys(TAB_LABELS).filter(
+          (k) => (k === key ? on : getState().tabs[k] !== false)
+        );
+        if (!remaining.length) {
+          cb.checked = true;
+          return toast("Il faut garder au moins un onglet.", true);
+        }
+        update((s) => { s.tabs[key] = on; });
+      })
+    );
 
     if (supportsFileAccess) {
       bind("#linkNew", async () => {

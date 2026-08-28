@@ -11,6 +11,7 @@ Tout part d'UNE variable : `--c-brand`, posée sur `<body data-theme="…">` par
 | Accueil | `home` | `--brand-home` | `#2f5fe0` bleu électrique |
 | Sport | `sport` | `--brand-sport` | `#b5600c` ambre brûlé |
 | Budget | `budget` | `--brand-budget` | `#33664d` vert sapin |
+| Nutrition | `nutrition` | `--brand-nutrition` | `#0f7d8c` bleu-vert |
 | Habitudes | `habits` | `--brand-habits` | `#7048d6` violet |
 | Tâches | `tasks` | `--brand-tasks` | `#d14a33` corail terre |
 | Réglages | `settings` | *(aucune)* | anthracite `#17171a` (défaut) |
@@ -41,6 +42,10 @@ Tout part d'UNE variable : `--c-brand`, posée sur `<body data-theme="…">` par
 | Accueil / priorité du jour / anneaux | `js/modules/dashboard.js` |
 | Sport (séance, progression, historique, poids) | `js/modules/sport.js` |
 | Budget (aperçu, journal, prévisionnel, revenus) | `js/modules/finance.js` |
+| Nutrition (repas, eau, favoris) | `js/modules/nutrition.js` |
+| Formules de besoins (kcal, protéines, eau) | `js/profile.js` |
+| Éditeur de programme sport | `renderEditor` dans `js/modules/sport.js` |
+| Liste et ordre des onglets | `NAV_ITEMS` dans `js/app.js` |
 | Habitudes | `js/modules/habits.js` |
 | Tâches | `js/modules/tasks.js` |
 | Réglages / stockage (boutons) | `js/modules/settings.js` |

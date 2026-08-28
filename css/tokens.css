@@ -23,6 +23,7 @@
   --brand-budget:  #33664d;   /* vert sapin              */
   --brand-habits:  #7048d6;   /* violet                  */
   --brand-tasks:   #d14a33;   /* corail terre — ≠ rouge critique */
+  --brand-nutrition: #0f7d8c; /* bleu-vert profond */
 
   /* Accent courant de la page (surchargé par data-theme).
      Défaut : anthracite → réglages et 404 restent neutres.    */
@@ -123,4 +124,5 @@ body[data-theme="sport"]  { --c-brand: var(--brand-sport); }
 body[data-theme="budget"] { --c-brand: var(--brand-budget); }
 body[data-theme="habits"] { --c-brand: var(--brand-habits); }
 body[data-theme="tasks"]  { --c-brand: var(--brand-tasks); }
+body[data-theme="nutrition"] { --c-brand: var(--brand-nutrition); }
 /* settings : pas de bloc — accent anthracite, base neutre. */
